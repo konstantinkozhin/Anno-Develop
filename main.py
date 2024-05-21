@@ -83,7 +83,7 @@ def previous_image():
 def update_counter():
     global label_dir
     num_annotated = len([f for f in os.listdir(label_dir) if f.endswith('.txt')])
-    return f"Total Images: {total_images}, Аннотировано: {num_annotated}"
+    return f"Всего изображений: {total_images}, Аннотировано: {num_annotated}"
 
 def load_annotation_text():
     global index, dataset, label_dir
@@ -120,23 +120,15 @@ def draw_boxes_cv(image_path, annotation_path):
     screen_width = root.winfo_screenwidth()
     screen_height = root.winfo_screenheight()
     
-    window_width = min(img_width, screen_width)
-    window_height = min(img_height, screen_height)
+    # Рассчитать масштабирование изображения
+    scale_factor = min(screen_width / img_width, screen_height / img_height)
+    new_width = int(img_width * scale_factor)
+    new_height = int(img_height * scale_factor)
+    img_resized = img.resize((new_width, new_height), Image.Resampling.LANCZOS)
     
-    tk_img = ImageTk.PhotoImage(img)
-    canvas = tk.Canvas(root, width=window_width, height=window_height, scrollregion=(0, 0, img_width, img_height))
+    tk_img = ImageTk.PhotoImage(img_resized)
+    canvas = tk.Canvas(root, width=new_width, height=new_height)
     canvas.pack(fill=tk.BOTH, expand=True)
-    
-    hbar = tk.Scrollbar(canvas, orient=tk.HORIZONTAL)
-    hbar.pack(side=tk.BOTTOM, fill=tk.X)
-    hbar.config(command=canvas.xview)
-    
-    vbar = tk.Scrollbar(canvas, orient=tk.VERTICAL)
-    vbar.pack(side=tk.RIGHT, fill=tk.Y)
-    vbar.config(command=canvas.yview)
-    
-    canvas.config(width=window_width, height=window_height)
-    canvas.config(xscrollcommand=hbar.set, yscrollcommand=vbar.set)
     
     canvas.create_image(0, 0, anchor=tk.NW, image=tk_img)
     
@@ -150,10 +142,10 @@ def draw_boxes_cv(image_path, annotation_path):
         for ann in existing_annotations:
             parts = ann.strip().split()
             class_id, x_center, y_center, width, height = map(float, parts)
-            x_center *= img.width
-            y_center *= img.height
-            width *= img.width
-            height *= img.height
+            x_center *= new_width
+            y_center *= new_height
+            width *= new_width
+            height *= new_height
             x1 = x_center - width / 2
             y1 = y_center - height / 2
             x2 = x_center + width / 2
@@ -196,10 +188,10 @@ def draw_boxes_cv(image_path, annotation_path):
         current_annotations = []
         for box in boxes:
             x1, y1, x2, y2 = box
-            x_center = ((x1 + x2) / 2) / img_width
-            y_center = ((y1 + y2) / 2) / img_height
-            width = abs(x2 - x1) / img_width
-            height = abs(y2 - y1) / img_height
+            x_center = ((x1 + x2) / 2) / new_width
+            y_center = ((y1 + y2) / 2) / new_height
+            width = abs(x2 - x1) / new_width
+            height = abs(y2 - y1) / new_height
             x_center = min(max(x_center, 0), 1)
             y_center = min(max(y_center, 0), 1)
             width = min(max(width, 0), 1)
