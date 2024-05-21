@@ -11,4 +11,4 @@
 ## Установка
 
 Для установки необходимо скачать EXE по ссылке с Яндекс.Диск:
-[Ссылка на скачивание](https://disk.yandex.ru/d/jMvP6xAjL9KkSg)
+[Ссылка на скачивание](https://disk.yandex.ru/d/3Xjn2hIDP62xpg)
