@@ -84,6 +84,8 @@ def update_image_on_canvas(image):
     tk_image = ImageTk.PhotoImage(image)
     canvas.image = tk_image
     canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
+    canvas.update_idletasks()
+    canvas.update()
 
 def resize_image(event):
     if dataset:
@@ -99,7 +101,7 @@ def resize_image(event):
         image = draw_boxes(image, annotation_list)
         update_image_on_canvas(image)
 
-def next_image():
+def next_image(event=None):
     global index, total_images
     if index < total_images - 1:
         index += 1
@@ -107,7 +109,7 @@ def next_image():
         update_counter()
         load_annotation_text()
 
-def previous_image():
+def previous_image(event=None):
     global index
     if index > 0:
         index -= 1
@@ -248,6 +250,7 @@ def draw_boxes_cv(image_path, annotation_path):
         
         load_annotation_text()  # Update annotation text box after saving annotations
         update_counter()  # Update the counter after saving annotations
+        show_image()  # Refresh the image with the new annotations
     
     root.bind("<BackSpace>", on_backspace)
     root.bind("<Return>", on_enter)
@@ -258,7 +261,7 @@ def draw_boxes_cv(image_path, annotation_path):
     
     root.mainloop()
 
-def annotate_image():
+def annotate_image(event=None):
     global index, dataset
     if index < len(dataset):
         img_path = dataset[index]
@@ -318,5 +321,10 @@ annotation_textbox = scrolledtext.ScrolledText(annotation_frame, wrap=tk.WORD, h
 annotation_textbox.pack(fill=tk.BOTH, expand=True)
 
 annotation_textbox.bind("<KeyRelease>", update_annotation_text)
+
+# Bind arrow keys for navigation and Enter key for annotation
+root.bind("<Left>", previous_image)
+root.bind("<Right>", next_image)
+root.bind("<Return>", annotate_image)
 
 root.mainloop()
