@@ -56,16 +56,16 @@ def draw_boxes(image, annotation_list):
     return image
 
 def show_image():
-    global index, dataset, label_dir, canvas
+    global index, dataset, label_dir, canvas, img_path
     
     if index >= len(dataset):
         messagebox.showinfo("Информация", "Evaluation complete")
         return
     
     img_path = dataset[index]
-    annotation_path = os.path.join(label_dir, os.path.basename(img_path).replace(".jpg", ".txt"))
     image = Image.open(img_path)
     
+    annotation_path = os.path.join(label_dir, os.path.basename(img_path).replace(".jpg", ".txt"))
     if os.path.exists(annotation_path):
         with open(annotation_path, 'r') as file:
             annotation_text = file.read().strip().split('\n')
@@ -74,8 +74,9 @@ def show_image():
         annotation_list = []
     
     image = draw_boxes(image, annotation_list)
-    
-    # Resize image to fit within the canvas
+    update_image_on_canvas(image)
+
+def update_image_on_canvas(image):
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
     image.thumbnail((canvas_width, canvas_height), Image.Resampling.LANCZOS)
@@ -83,6 +84,20 @@ def show_image():
     tk_image = ImageTk.PhotoImage(image)
     canvas.image = tk_image
     canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
+
+def resize_image(event):
+    if dataset:
+        image = Image.open(dataset[index])
+        annotation_path = os.path.join(label_dir, os.path.basename(dataset[index]).replace(".jpg", ".txt"))
+        if os.path.exists(annotation_path):
+            with open(annotation_path, 'r') as file:
+                annotation_text = file.read().strip().split('\n')
+            annotation_list = [line.split() for line in annotation_text]
+        else:
+            annotation_list = []
+        
+        image = draw_boxes(image, annotation_list)
+        update_image_on_canvas(image)
 
 def next_image():
     global index, total_images
@@ -276,6 +291,7 @@ canvas_frame.pack(fill=tk.BOTH, expand=True, **style)
 
 canvas = tk.Canvas(canvas_frame, bg='gray')
 canvas.pack(fill=tk.BOTH, expand=True)
+canvas.bind("<Configure>", resize_image)
 
 info_frame = tk.Frame(frame)
 info_frame.pack(fill=tk.X, **style)
