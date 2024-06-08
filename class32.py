@@ -608,7 +608,7 @@ jump_button.pack(side=tk.LEFT, padx=5)
 info_frame = ttk.Frame(frame)
 info_frame.pack(fill=tk.X, **style_options)
 
-image_info_label = ttk.Label(info_frame, text="Текущее изображение: N/A, Позиция: 0/0")
+image_info_label = ttk.Label(info_frame, text="Позиция: 0/0, Текущее изображение: N/A")
 image_info_label.pack(side=tk.LEFT, padx=5)
 
 main_frame = ttk.Frame(frame)
